@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Rojean Untalan — Home</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+
+  <!-- Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    .profile-pic {
+      cursor: pointer;
+      transition: opacity 0.3s;
+    }
+    .profile-pic:hover {
+      opacity: 0.8;
+    }
+    #loginPrompt {
+      margin-top: 30px;
+    }
+    #loginPrompt .cta {
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <div class="brand">
+      <a href="index.html">Rojean Untalan</a>
+    </div>
+
+    <button id="mobile-toggle" aria-label="Toggle navigation">☰</button>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li id="authLinks"><a href="login.html" style="color: var(--accent); font-weight: 600; margin-right: 10px;">Login</a> | <a href="register.html" style="color: var(--accent); font-weight: 600; margin-left: 10px;">Register</a></li>
+      <li id="navAbout" style="display: none;"><a href="about.html">About</a></li>
+      <li id="navSkills" style="display: none;"><a href="skills.html">Technical Skills</a></li>
+      <li id="navProjects" style="display: none;"><a href="projects.html">Projects</a></li>
+      <li id="navEducation" style="display: none;"><a href="education.html">Education</a></li>
+      <li id="logoutLink" style="display: none;"><a href="#" onclick="logout(event);" style="color: #f44336; font-weight: 600;">Logout</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <img id="profileImage" src="../assets/image/resume_profile.jpg" alt="Profile Photo" class="profile-pic" title="Click to change profile image (admin only)">
+    <h1>Aspiring Software Engineer</h1>
+    <p class="lead">
+      Hi! I'm an aspiring software engineer who loves creating digital experiences that are both fun to use and genuinely useful.
+      I enjoy building things that work smoothly, look good, and make life a little easier.
+    </p>
+    <a id="projectsBtn" class="cta" href="projects.html" style="display: none;">See my projects</a>
+    <div id="loginPrompt" style="text-align: center;">
+      <p style="color: var(--text); margin-bottom: 15px;">Please log in to view more content</p>
+      <a href="login.html" class="cta" style="display: inline-block; margin-right: 10px;">Login</a>
+      <a href="register.html" class="cta" style="display: inline-block;">Register</a>
+    </div>
+  </section>
+  
+  <input type="file" id="profileImageInput" accept="image/*" style="display: none;">
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-content">
+
+    <a href="https://mail.google.com/mail/u/0/#inbox" aria-label="Email">
+      <i class="fa-solid fa-envelope"></i>
+    </a>
+
+    <a href="https://github.com/rojeanuntalan" target="_blank" aria-label="GitHub">
+      <i class="fa-brands fa-github"></i>
+    </a>
+
+    <a href="https://www.instagram.com/ur.genie/" target="_blank" aria-label="Instagram">
+      <i class="fa-brands fa-instagram"></i>
+    </a>
+
+    <a href="https://www.facebook.com/rojean.untalan" target="_blank" aria-label="Facebook">
+      <i class="fa-brands fa-facebook"></i>
+    </a>
+
+  </div>
+
+  <p class="footer-copy">
+    © 2025 Rojean Untalan
+  </p>
+</footer>
+
+<script src="../assets/js/code.js"></script>
+<script>
+$(document).ready(function() {
+  checkAuthStatus();
+  
+  // Profile image click handler
+  $('#profileImage').click(function() {
+    checkIfAdmin(function(isAdmin) {
+      if (isAdmin) {
+        $('#profileImageInput').click();
+      } else {
+        alert('Only the admin can change the profile image. Please log in.');
+      }
+    });
+  });
+  
+  // Handle profile image selection
+  $('#profileImageInput').change(function() {
+    const file = this.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      $.ajax({
+        url: '../api/api_home.php',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function(response) {
+          if (response.status === 'success') {
+            // Update the image with cache buster
+            const timestamp = new Date().getTime();
+            $('#profileImage').attr('src', response.path + '?t=' + timestamp);
+            alert('Profile image updated successfully!');
+          } else {
+            alert('Error: ' + response.message);
+          }
+        },
+        error: function() {
+          alert('Failed to upload image');
+        }
+      });
+    }
+  });
+  
+  $("#mobile-toggle").on("click", function() {
+    $("#nav-links").toggleClass("show");
+  });
+});
+
+function checkAuthStatus() {
+  $.ajax({
+    url: '../api/api_home.php?action=check_auth',
+    method: 'GET',
+    dataType: 'json',
+    success: function(response) {
+      if (response.authenticated) {
+        // User is logged in - show navigation
+        $('#authLinks').hide();
+        $('#navAbout').show();
+        $('#navSkills').show();
+        $('#navProjects').show();
+        $('#navEducation').show();
+        $('#logoutLink').show();
+        $('#projectsBtn').show();
+        $('#loginPrompt').hide();
+      } else {
+        // User not logged in - show login prompt
+        $('#authLinks').show();
+        $('#navAbout').hide();
+        $('#navSkills').hide();
+        $('#navProjects').hide();
+        $('#navEducation').hide();
+        $('#logoutLink').hide();
+        $('#projectsBtn').hide();
+        $('#loginPrompt').show();
+      }
+    }
+  });
+}
+
+function checkIfAdmin(callback) {
+  $.ajax({
+    url: '../api/api_home.php?action=check_auth',
+    method: 'GET',
+    dataType: 'json',
+    success: function(response) {
+      callback(response.authenticated);
+    },
+    error: function() {
+      callback(false);
+    }
+  });
+}
+
+function logout(e) {
+  if (e) e.preventDefault();
+  $.ajax({
+    url: '../logout.php',
+    method: 'GET',
+    success: function() {
+      window.location.href = 'index.html';
+    }
+  });
+}
+</script>
+</body>
+</html>

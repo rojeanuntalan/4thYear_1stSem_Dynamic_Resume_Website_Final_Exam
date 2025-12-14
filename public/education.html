@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Education — Rojean Untalan</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    .education-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin: 30px 0;
+    }
+    .education-card {
+      background: var(--surface);
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid var(--primary);
+    }
+    .education-card img {
+      width: 100%;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      max-height: 150px;
+      object-fit: contain;
+    }
+    .education-card h3 {
+      color: var(--accent);
+      margin: 15px 0 5px 0;
+    }
+    .education-card p {
+      margin: 8px 0;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <div class="brand">
+      <a href="index.html">Rojean Untalan</a>
+    </div>
+    <button id="mobile-toggle" aria-label="Toggle navigation">☰</button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="skills.html">Technical Skills</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="education.html">Education</a></li>
+  </nav>
+</header>
+
+<main class="card">
+  <h2>Education & Certifications</h2>
+  <div id="educationContent" class="education-grid" style="min-height: 200px;">
+    <p>Loading...</p>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-content">
+    <a href="https://mail.google.com/mail/u/0/#inbox" aria-label="Email">
+      <i class="fa-solid fa-envelope"></i>
+    </a>
+    <a href="https://github.com/rojeanuntalan" target="_blank" aria-label="GitHub">
+      <i class="fa-brands fa-github"></i>
+    </a>
+    <a href="https://www.instagram.com/ur.genie/" target="_blank" aria-label="Instagram">
+      <i class="fa-brands fa-instagram"></i>
+    </a>
+    <a href="https://www.facebook.com/rojean.untalan" target="_blank" aria-label="Facebook">
+      <i class="fa-brands fa-facebook"></i>
+    </a>
+  </div>
+  <p class="footer-copy">© 2025 Rojean Untalan</p>
+</footer>
+
+<script src="../assets/js/code.js"></script>
+<script>
+$(document).ready(function() {
+  $.ajax({
+    url: '../api/api_public.php?section=education',
+    method: 'GET',
+    dataType: 'json',
+    success: function(response) {
+      if (response.status === 'success' && response.data.length > 0) {
+        const education = response.data;
+        let html = '';
+        education.forEach(edu => {
+          html += '<div class="education-card">';
+          if (edu.image_path) {
+            html += '<img src="../' + edu.image_path + '" alt="' + edu.institution + '">';
+          }
+          html += '<h3>' + edu.degree + '</h3>';
+          html += '<p><strong>' + edu.institution + '</strong></p>';
+          if (edu.field) {
+            html += '<p><strong>Field:</strong> ' + edu.field + '</p>';
+          }
+          if (edu.start_year || edu.end_year) {
+            const years = (edu.start_year || '') + (edu.end_year ? ' - ' + edu.end_year : '');
+            html += '<p><strong>Years:</strong> ' + years + '</p>';
+          }
+          html += '</div>';
+        });
+        $('#educationContent').html(html);
+      } else {
+        $('#educationContent').html('<p>No education records added yet.</p>');
+      }
+    },
+    error: function() {
+      $('#educationContent').html('<p>Unable to load education.</p>');
+    }
+  });
+});
+</script>
+</body>
+</html>

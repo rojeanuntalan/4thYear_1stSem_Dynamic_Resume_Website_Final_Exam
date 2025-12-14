@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Skills — Rojean Untalan</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    .skill-card {
+      background: var(--surface);
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid var(--primary);
+    }
+    .skill-card h3 {
+      color: var(--accent);
+      margin-top: 0;
+    }
+    .proficiency-bar {
+      background: #ddd;
+      border-radius: 5px;
+      height: 10px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+    .proficiency-fill {
+      background: var(--primary);
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <div class="brand">
+      <a href="index.html">Rojean Untalan</a>
+    </div>
+    <button id="mobile-toggle" aria-label="Toggle navigation">☰</button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="skills.html">Technical Skills</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="education.html">Education</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="card">
+  <h2>Technical Skills</h2>
+  <div id="skillsContent" class="skills-grid" style="min-height: 200px;">
+    <p>Loading...</p>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-content">
+    <a href="https://mail.google.com/mail/u/0/#inbox" aria-label="Email">
+      <i class="fa-solid fa-envelope"></i>
+    </a>
+    <a href="https://github.com/rojeanuntalan" target="_blank" aria-label="GitHub">
+      <i class="fa-brands fa-github"></i>
+    </a>
+    <a href="https://www.instagram.com/ur.genie/" target="_blank" aria-label="Instagram">
+      <i class="fa-brands fa-instagram"></i>
+    </a>
+    <a href="https://www.facebook.com/rojean.untalan" target="_blank" aria-label="Facebook">
+      <i class="fa-brands fa-facebook"></i>
+    </a>
+  </div>
+  <p class="footer-copy">© 2025 Rojean Untalan</p>
+</footer>
+
+<script src="../assets/js/code.js"></script>
+<script>
+$(document).ready(function() {
+  $.ajax({
+    url: '../api/api_public.php?section=skills',
+    method: 'GET',
+    dataType: 'json',
+    success: function(response) {
+      if (response.status === 'success' && response.data.length > 0) {
+        const skills = response.data;
+        let html = '';
+        skills.forEach(skill => {
+          html += '<div class="skill-card">';
+          html += '<h3>' + skill.skill_name + '</h3>';
+          if (skill.category) {
+            html += '<p><strong>Category:</strong> ' + skill.category + '</p>';
+          }
+          html += '<p><strong>Proficiency:</strong> ' + skill.proficiency + '%</p>';
+          html += '<div class="proficiency-bar">';
+          html += '<div class="proficiency-fill" style="width: ' + skill.proficiency + '%"></div>';
+          html += '</div>';
+          html += '</div>';
+        });
+        $('#skillsContent').html(html);
+      } else {
+        $('#skillsContent').html('<p>No skills added yet.</p>');
+      }
+    },
+    error: function() {
+      $('#skillsContent').html('<p>Unable to load skills.</p>');
+    }
+  });
+});
+</script>
+</body>
+</html>
